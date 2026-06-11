@@ -1,0 +1,209 @@
+# TeamCity / Bitbucket to GitHub Migration Guidelines
+
+Draft v0.1
+
+## Purpose
+
+This document provides high-level guidance for application teams planning migration from TeamCity and Bitbucket to GitHub and GitHub Actions.
+
+At the time of writing, the target state, migration tooling, and organizational standards are still evolving. Therefore, this document should be treated as guidance rather than a strict migration procedure.
+
+Individual applications may require additional activities not covered here.
+
+---
+
+## Assumptions
+
+The following assumptions were used when preparing this document:
+
+- source code currently resides in Bitbucket
+- CI pipelines currently run in TeamCity
+- artifacts are published to approved corporate repositories
+- application teams remain responsible for their own applications
+- platform teams provide migration guidance and shared tooling where available
+
+If any of the above assumptions are incorrect for a given application, additional migration work may be required.
+
+---
+
+## What This Document Is Not
+
+This document does not attempt to:
+
+- redesign application architecture
+- modernize build processes
+- upgrade frameworks
+- migrate deployment platforms
+- remove technical debt
+
+Migration to GitHub should not automatically be treated as an opportunity to rewrite existing delivery processes.
+
+---
+
+## Recommended Migration Phases
+
+### Phase 0 - Inventory
+
+Before any migration work starts, teams should understand what currently exists.
+
+Suggested inventory items:
+
+- source repositories
+- TeamCity projects
+- build configurations
+- templates
+- snapshot dependencies
+- artifact dependencies
+- deployment dependencies
+- secrets and credentials
+- agent-specific requirements
+- external integrations
+
+In practice, this phase is often underestimated and becomes the source of most migration issues later.
+
+Deliverable:
+
+Basic migration inventory.
+
+### Phase 1 - Repository Migration
+
+Move source code from Bitbucket to GitHub.
+
+Recommended validation:
+
+- commit history preserved
+- tags preserved
+- branches preserved
+- permissions reviewed
+- branch protection configured
+- CODEOWNERS configured where appropriate
+
+Deliverable:
+
+Working GitHub repository.
+
+### Phase 2 - Build Configuration Review
+
+Review how the application is currently built.
+
+Particular attention should be paid to:
+
+- inline TeamCity scripts
+- build parameters
+- secure parameters
+- shared templates
+- meta-runners
+- manually maintained agent software
+
+One common risk is discovering that part of the build logic exists only in TeamCity UI and is not stored in source control.
+
+Deliverable:
+
+Documented build process.
+
+### Phase 3 - Configuration Mapping
+
+Determine how existing TeamCity concepts map to GitHub.
+
+| TeamCity | GitHub |
+|-----------|---------|
+| Build Configuration | Workflow |
+| Build Step | Job / Step |
+| Parameter | Variable |
+| Password Parameter | Secret |
+| Agent Pool | Runner Group |
+| Template | Reusable Workflow |
+| Trigger | Workflow Trigger |
+
+Not every TeamCity feature has a direct GitHub equivalent.
+
+Additional design work may be required for more complex build chains.
+
+Deliverable:
+
+Migration design.
+
+### Phase 4 - GitHub Actions Implementation
+
+Create GitHub workflows.
+
+Where possible, teams should prefer:
+
+- reusable workflows
+- approved organization actions
+- centralized runner strategy
+- approved secrets management approach
+
+Avoid copying workflow implementations between repositories unless there is a clear reason to do so.
+
+Deliverable:
+
+Functional GitHub Actions workflow.
+
+### Phase 5 - Validation
+
+Before cutover, verify:
+
+- build execution
+- unit tests
+- artifact publication
+- deployment execution
+- approval flows
+- rollback procedures
+
+Running TeamCity and GitHub Actions in parallel for a limited period may reduce migration risk.
+
+Deliverable:
+
+Validated workflow.
+
+### Phase 6 - Cutover
+
+After validation:
+
+- disable TeamCity triggers
+- update documentation
+- notify stakeholders
+- establish support ownership
+
+Deliverable:
+
+GitHub Actions becomes the primary CI platform.
+
+---
+
+## Common Risks
+
+### Hidden TeamCity Logic
+
+Build logic exists only in TeamCity UI.
+
+### Agent Drift
+
+Build depends on software installed manually on TeamCity agents.
+
+### Missing Secrets
+
+Credentials were never documented outside TeamCity.
+
+### Build Chain Complexity
+
+Dependencies between build configurations were not fully understood.
+
+### Migration Scope Expansion
+
+Migration effort becomes mixed with unrelated modernization work.
+
+This is usually one of the largest sources of delay.
+
+---
+
+## Suggested Success Criteria
+
+Migration can be considered complete when:
+
+- source code is hosted in GitHub
+- builds execute successfully in GitHub Actions
+- artifacts are produced correctly
+- deployment processes continue to function
+- TeamCity is no longer required for normal operation
